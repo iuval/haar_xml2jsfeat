@@ -1,21 +1,43 @@
 $( document ).ready(function() {
-  $("#convert").click(function() {
-    var xml_raw = $("#xml").val();
-    if (xml_raw.length > 0) {
-      var output = "";
-      var xml_doc = $.parseXML(xml_raw);
-      var cascade = $(xml_doc).find("haarcascade");
-      $(cascade).find("stages").children().each(function () {
-        output += readStage($(this)) + ",";
-      });
-      output = output.slice(0,-1); // Removes last comma
-
-      var size = $(cascade).find("size").text().trim().split(" ");
-      output += "],size:[" + size[0] + "," + size[1] + "],tilted:true}";
-      $("#jsfeat").val(output);
+  $("input:file").on("change", function(evt){
+    var files = evt.target.files; // FileList object
+    if (!files.length) {
+      alert('Please select a file!');
+      return;
     }
+
+    var file = files[0];
+    var reader = new FileReader();
+
+    // If we use onloadend, we need to check the readyState.
+    reader.onloadend = function(evt) {
+      if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+        var text = readXML($.parseXML(evt.target.result));
+        var pom = document.createElement('a');
+        pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        pom.setAttribute('download', files[0].name + ".jsfeat");
+        pom.click();
+      }
+    };
+
+    reader.readAsBinaryString(file);
   });
 });
+
+function readXML(xml_doc) {
+  var output = "";
+
+  var cascade = $(xml_doc).find("haarcascade");
+  $(cascade).find("stages").children().each(function () {
+    output += readStage($(this)) + ",";
+  });
+  output = output.slice(0,-1); // Removes last comma
+
+  var size = $(cascade).find("size").text().trim().split(" ");
+  output += "],size:[" + size[0] + "," + size[1] + "],tilted:true}";
+
+  return output;
+}
 
 function readStage($stage) {
   var output = "{complexClassifiers:[";
