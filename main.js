@@ -32,9 +32,10 @@ function readXML(xml_doc) {
     output += readStage($(this)) + ",";
   });
   output = output.slice(0,-1); // Removes last comma
+  output += "]";
 
-  var size = $(cascade).find("size").text().trim().split(" ");
-  output += "],size:[" + size[0] + "," + size[1] + "],tilted:true}";
+  output += ",size:[" + $(cascade).find("size").text().trim().split(" ").join(",") + "]";
+  output += ",tilted:true}";
 
   return output;
 }
@@ -66,7 +67,7 @@ function readNode($node) {
   var output = "{features:[";
 
   $node.find("feature").find("rects").children().each(function () {
-    output += "[" + $(this).text().trim().replace(" ", ",") + "],";
+    output += "[" + $(this).text().trim().split(" ").join(",") + "],";
   });
   output = output.slice(0,-1); // Removes last comma
   output += "]"
