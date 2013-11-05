@@ -66,8 +66,9 @@ function readNode($node) {
   var output = "{features:[";
 
   $node.find("feature").find("rects").children().each(function () {
-    output += "[" + $(this).text().trim().replace(" ", ",") + "]";
+    output += "[" + $(this).text().trim().replace(" ", ",") + "],";
   });
+  output = output.slice(0,-1); // Removes last comma
   output += "]"
   output += ",tilted:" + $node.find("tilted").text();
   var left = $node.find("left_val");
