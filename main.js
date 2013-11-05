@@ -25,9 +25,9 @@ $( document ).ready(function() {
 });
 
 function readXML(xml_doc) {
-  var output = "";
+  var output = "{complexClassifiers:[";
 
-  var cascade = $(xml_doc).find("haarcascade");
+  var cascade = $(xml_doc).children()[0];
   $(cascade).find("stages").children().each(function () {
     output += readStage($(this)) + ",";
   });
@@ -41,19 +41,20 @@ function readXML(xml_doc) {
 }
 
 function readStage($stage) {
-  var output = "{complexClassifiers:[";
+  var output = "{simpleClassifiers:[";
 
   $stage.find("trees").children().each(function () {
     output += readTree($(this)) + ",";
   });
   output = output.slice(0,-1); // Removes last comma
+  output += "]";
 
-  output += "],threshold:" + $stage.find("stage_threshold").text() + "}";
+  output += ",threshold:" + $stage.find("stage_threshold").text() + "}";
   return output;
 };
 
 function readTree($tree) {
-  var output = "{simpleClassifiers:[";
+  var output = "";
 
   $tree.children().each(function () {
     output += readNode($(this)) + ",";
@@ -72,10 +73,19 @@ function readNode($node) {
   output = output.slice(0,-1); // Removes last comma
   output += "]"
   output += ",tilted:" + $node.find("tilted").text();
-  var left = $node.find("left_val");
-  if (left.length > 0) { output += ",left_val:" + left.text(); }
+  output += ",threshold:" + $node.find("threshold").text();
   var right = $node.find("right_val");
-  if (right.length > 0) { output += ",right_val:" + right.text(); }
-  output += ",threshold:" + $node.find("threshold").text() + "}";
+  if (right.length > 0) {
+    output += ",right_val:" + right.text();
+  } else {
+    output += ",right_node:" + $node.find("right_node").text();
+  }
+  var left = $node.find("left_val");
+  if (left.length > 0) {
+    output += ",left_val:" + left.text();
+  } else {
+    output += ",left_node:" + $node.find("left_node").text();
+  }
+  output += "}";
   return output;
 };
